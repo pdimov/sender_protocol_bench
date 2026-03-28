@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.14...4.2)
 
 project(corosio_protocol_bench LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 23)
+
 include(FetchContent)
 
 # Boost::capy
@@ -43,10 +45,23 @@ set(BOOST_INCLUDE_LIBRARIES container_hash describe assert)
 
 FetchContent_MakeAvailable(Boost)
 
-# corosio_protocol_bench
+# beman::task
 
-add_executable(corosio_protocol_bench)
+FetchContent_Declare(
+    beman-task
+    GIT_REPOSITORY https://github.com/bemanproject/task
+    GIT_TAG 6163df9
+    SYSTEM
+    FIND_PACKAGE_ARGS
+        NAMES beman.task
+)
 
-target_sources(corosio_protocol_bench PRIVATE main.cpp)
+FetchContent_MakeAvailable(beman-task)
 
-target_link_libraries(corosio_protocol_bench PRIVATE Boost::capy Boost::corosio Boost::container_hash Boost::describe Boost::assert)
+# sender_protocol_bench
+
+add_executable(sender_protocol_bench)
+
+target_sources(sender_protocol_bench PRIVATE main.cpp)
+
+target_link_libraries(sender_protocol_bench PRIVATE beman::task Boost::container_hash Boost::describe Boost::assert)
