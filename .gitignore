@@ -1,0 +1,5 @@
+/__build_msvc/
+/__build_clang/
+/.vs/
+/out/
+/corosio_protocol_bench.slnx
