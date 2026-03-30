@@ -19,11 +19,10 @@ namespace ex = beman::execution;
 
 template<class Source, class Sink> void bench( std::vector<element> const& v )
 {
+    sendosio::io_context ioc;
     std::thread th;
 
     {
-        sendosio::io_context ioc;
-
         auto [rsk, wsk] = sendosio::test::make_socket_pair( ioc );
 
         auto work_guard = boost::asio::make_work_guard( ioc );
