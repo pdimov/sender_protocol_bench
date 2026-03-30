@@ -24,7 +24,7 @@ public:
 
     task_type write( void const* p, std::size_t n )
     {
-        auto [ec, m] = co_await boost::capy::write( sock_, boost::capy::const_buffer( p, n ) );
+        auto [ec, m] = co_await sendosio::write( sock_, sendosio::const_buffer( p, n ) );
         if( ec ) throw std::system_error( ec, "simple_socket_sink::write" );
     }
 

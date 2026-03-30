@@ -10,26 +10,6 @@ set(CMAKE_CXX_STANDARD 23)
 
 include(FetchContent)
 
-# Boost::capy
-
-message(STATUS "Fetching Boost::capy")
-
-FetchContent_Declare(capy
-    GIT_REPOSITORY https://github.com/cppalliance/capy.git
-    GIT_TAG        develop)
-
-FetchContent_MakeAvailable(capy)
-
-# Boost::corosio
-
-message(STATUS "Fetching Boost::corosio")
-
-FetchContent_Declare(corosio
-    GIT_REPOSITORY https://github.com/cppalliance/corosio.git
-    GIT_TAG        develop)
-
-FetchContent_MakeAvailable(corosio)
-
 # Boost
 
 message(STATUS "Fetching Boost")
@@ -41,7 +21,7 @@ FetchContent_Declare(
   DOWNLOAD_EXTRACT_TIMESTAMP ON
 )
 
-set(BOOST_INCLUDE_LIBRARIES container_hash describe assert)
+set(BOOST_INCLUDE_LIBRARIES container_hash describe assert asio)
 
 FetchContent_MakeAvailable(Boost)
 
@@ -58,10 +38,20 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(beman-task)
 
+# sendosio
+
+message(STATUS "Fetching sendosio")
+
+FetchContent_Declare(sendosio
+    GIT_REPOSITORY https://github.com/pdimov/sendosio.git
+    GIT_TAG        master)
+
+FetchContent_MakeAvailable(sendosio)
+
 # sender_protocol_bench
 
 add_executable(sender_protocol_bench)
 
 target_sources(sender_protocol_bench PRIVATE main.cpp)
 
-target_link_libraries(sender_protocol_bench PRIVATE beman::task Boost::container_hash Boost::describe Boost::assert)
+target_link_libraries(sender_protocol_bench PRIVATE sendosio::sendosio beman::task Boost::container_hash Boost::describe Boost::assert)

@@ -8,36 +8,46 @@
 #include "simple_socket_sink.hpp"
 #include "reader_task.hpp"
 #include "writer_task.hpp"
-#include <boost/corosio/io_context.hpp>
-#include <boost/corosio/test/socket_pair.hpp>
-#include <boost/capy/ex/run_async.hpp>
+#include <sendosio/sendosio.hpp>
+#include <beman/execution/execution.hpp>
 #include <boost/current_function.hpp>
 #include <chrono>
 #include <cstdio>
+#include <thread>
 
-namespace corosio = boost::corosio;
-namespace capy = boost::capy;
+namespace ex = beman::execution;
 
 template<class Source, class Sink> void bench()
 {
-    corosio::io_context ioc;
+    std::thread th;
 
-    auto [rs, ws] = corosio::test::make_socket_pair( ioc );
+    {
+        sendosio::io_context ioc;
 
-    std::printf( "-- %s:\n", BOOST_CURRENT_FUNCTION );
+        auto [rsk, wsk] = sendosio::test::make_socket_pair( ioc );
 
-    auto t1 = std::chrono::steady_clock::now();
+        auto work_guard = boost::asio::make_work_guard( ioc );
+        th = std::thread( [&]{ ioc.run(); } );
 
-    capy::run_async( ioc.get_executor() )( writer_task( Sink( std::move(ws) ) ) );
-    capy::run_async( ioc.get_executor() )( reader_task( Source( std::move(rs) ) ) );
+        std::printf( "-- %s:\n", BOOST_CURRENT_FUNCTION );
 
-    ioc.run();
+        auto t1 = std::chrono::steady_clock::now();
 
-    auto t2 = std::chrono::steady_clock::now();
+        auto rt = reader_task( Source( std::move(rsk) ) );
+        auto wt = writer_task( Sink( std::move(wsk) ) );
 
-    using namespace std::chrono_literals;
+        auto pipe = ex::when_all( std::move(rt), std::move(wt) );
 
-    std::printf( "-- %lld ms\n\n", static_cast<long long>( ( t2 - t1 ) / 1ms ) );
+        ex::sync_wait( std::move( pipe ) );
+
+        auto t2 = std::chrono::steady_clock::now();
+
+        using namespace std::chrono_literals;
+
+        std::printf( "-- %lld ms\n\n", static_cast<long long>( ( t2 - t1 ) / 1ms ) );
+    }
+
+    th.join();
 }
 
 int main()

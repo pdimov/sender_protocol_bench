@@ -24,7 +24,7 @@ public:
 
     task_type read( void* p, std::size_t n )
     {
-        auto [ec, m] = co_await boost::capy::read( sock_, boost::capy::mutable_buffer( p, n ) );
+        auto [ec, m] = co_await sendosio::read( sock_, sendosio::mutable_buffer( p, n ) );
         if( ec ) throw std::system_error( ec, "simple_socket_source::read" );
     }
 
