@@ -17,7 +17,7 @@
 
 namespace ex = beman::execution;
 
-template<class Source, class Sink> void bench()
+template<class Source, class Sink> void bench( std::vector<element> const& v )
 {
     std::thread th;
 
@@ -34,7 +34,7 @@ template<class Source, class Sink> void bench()
         auto t1 = std::chrono::steady_clock::now();
 
         auto rt = reader_task( Source( std::move(rsk) ) );
-        auto wt = writer_task( Sink( std::move(wsk) ) );
+        auto wt = writer_task( Sink( std::move(wsk) ), v );
 
         auto pipe = ex::when_all( std::move(rt), std::move(wt) );
 
@@ -52,5 +52,16 @@ template<class Source, class Sink> void bench()
 
 int main()
 {
-    bench<simple_socket_source, simple_socket_sink>();
+    int const N = 100'000;
+
+    std::vector<element> v( N );
+
+    for( int j = 0; j < N; ++j )
+    {
+        v[ j ].index_ = j;
+        v[ j ].key_ = "key" + std::to_string( j );
+        v[ j ].value_.resize( 4, { j * 1.0f, j * 2.0f, j * 3.0f } );
+    }
+
+    bench<simple_socket_source, simple_socket_sink>( v );
 }
