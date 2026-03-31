@@ -24,7 +24,8 @@ public:
 
     ~simple_socket_source()
     {
-        sock_.shutdown( socket_type::shutdown_receive );
+        boost::system::error_code ec;
+        sock_.shutdown( socket_type::shutdown_receive, ec );
     }
 
     simple_socket_source( simple_socket_source&& ) = default;

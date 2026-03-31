@@ -32,12 +32,14 @@ template<class Source, class Sink> void bench( std::vector<element> const& v )
 
         auto t1 = std::chrono::steady_clock::now();
 
-        auto rt = reader_task( Source( std::move(rsk) ) );
-        auto wt = writer_task( Sink( std::move(wsk) ), v );
+        {
+            auto rt = reader_task( Source( std::move(rsk) ) );
+            auto wt = writer_task( Sink( std::move(wsk) ), v );
 
-        auto pipe = ex::when_all( std::move(rt), std::move(wt) );
+            auto pipe = ex::when_all( std::move(rt), std::move(wt) );
 
-        ex::sync_wait( std::move( pipe ) );
+            ex::sync_wait( std::move( pipe ) );
+        }
 
         auto t2 = std::chrono::steady_clock::now();
 

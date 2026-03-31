@@ -24,7 +24,8 @@ public:
 
     ~simple_socket_sink()
     {
-        sock_.shutdown( socket_type::shutdown_send );
+        boost::system::error_code ec;
+        sock_.shutdown( socket_type::shutdown_send, ec );
     }
 
     simple_socket_sink( simple_socket_sink&& ) = default;
